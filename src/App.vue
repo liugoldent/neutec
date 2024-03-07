@@ -1,21 +1,44 @@
 <script>
+import { ref } from 'vue'
+import defaultData from './assets/data.js'
+import TreeList from './components/TreeList.vue'
 export default {
-  props: {
-    componentType: {}
+  components: {
+    TreeList
   },
-  components: {},
-  setup(props) {
+  setup() {
+    const rightDrawer = ref(null)
+    const drawerStatus = ref(false)
+
+    // 如果點擊目標在drawer之外，則將drawer關閉
+    const handleClickOutside = function (event) {
+      if (!rightDrawer.value.contains(event.target)) {
+        drawerStatus.value = false
+      }
+    }
     return {
       circleShowIndex: [1, 3, 7, 9], // 哪些方格要顯示圓圈
-      fadeInOutShowIndex: [3, 5, 9] // 哪些方格要淡入淡出
+      fadeInOutShowIndex: [3, 5, 9], // 哪些方格要淡入淡出
+      drawerStatus,
+      rightDrawer,
+      treeData: defaultData,
+      handleClickOutside
     }
   }
 }
 </script>
 
 <template>
-  <div>
-    <div :class="$style.rightDrawer"></div>
+  <div @click="handleClickOutside">
+    <div :class="$style.rightDrawerBtn">
+      <button @click.self.stop="drawerStatus = !drawerStatus">Show Drawer</button>
+    </div>
+    <div
+      ref="rightDrawer"
+      :class="[$style.mainDrawer, { [$style.mainDrawer__open]: drawerStatus }]"
+    >
+      <TreeList :tree-data="treeData" />
+    </div>
     <div :class="$style.nineSquare">
       <div :class="$style.nineSquare__mainDiv">
         <div v-for="index in 9" :key="index" :class="$style.nineSquare__repeatDiv">
@@ -35,18 +58,39 @@ export default {
 <style lang='scss' module>
 $drawer-btn-height: 50px;
 
-.rightDrawer {
+.rightDrawerBtn {
   width: 100%;
   height: $drawer-btn-height;
   background-color: white;
+  display: flex;
+  justify-content: flex-end;
+  > button {
+    margin: 10px;
+  }
 }
+.mainDrawer {
+  width: 50vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  right: -50vw;
+  z-index: 9999;
+  background-color: red;
+  transition: right 1s ease; /* 添加过渡效果 */
+  padding: 10px;
+  box-sizing: border-box;
+  &__open {
+    right: 0;
+  }
+}
+
 .nineSquare {
   width: 100%;
   height: calc(100vh - $drawer-btn-height);
   background-color: gray;
   display: flex;
   align-items: center;
-
+  overflow: hidden; /* 添加溢出隐藏样式 */
   &__mainDiv {
     flex-grow: 1;
     display: grid;
@@ -70,7 +114,7 @@ $drawer-btn-height: 50px;
     background-color: black;
     border-radius: 50%;
     z-index: 1;
-    animation: circleMoveToRight 2s infinite;
+    // animation: circleMoveToRight 2s infinite;
   }
   &__eachSquare {
     height: 100px;
@@ -82,7 +126,7 @@ $drawer-btn-height: 50px;
     background: radial-gradient(circle, rgba(113, 81, 95, 1) 81%, rgba(0, 0, 0, 1) 100%);
   }
   &__eachSquareAnimate {
-    animation: squareFadeInOut 2s infinite;
+    // animation: squareFadeInOut 2s infinite;
   }
 }
 
