@@ -1,10 +1,12 @@
 <script>
 import { ref, onMounted, nextTick } from 'vue'
 import defaultData from './assets/data.js'
-import TreeList from './components/TreeList.vue'
+import TreeListLi from './components/TreeListLi.vue'
+import TreeListSelect from './components/TreeListSelect.vue'
 export default {
   components: {
-    TreeList
+    TreeListLi,
+    TreeListSelect
   },
   setup() {
     onMounted(() => {
@@ -167,7 +169,8 @@ export default {
       ref="rightDrawer"
       :class="[$style.mainDrawer, { [$style.mainDrawer__open]: drawerStatus }]"
     >
-      <TreeList :tree-data="treeData" />
+      <TreeListLi :tree-data="treeData" />
+      <TreeListSelect :tree-data="treeData" />
     </div>
     <div :class="$style.nineSquare">
       <div :class="$style.nineSquare__mainDiv">

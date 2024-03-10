@@ -2,7 +2,7 @@
   <ul>
     <li v-for="item in data" :key="item.key">
       <span @click="toggleTree(item)">{{ item.text }}</span>
-      <tree-list :tree-data="item.children" v-if="item.children && item.isOpen" />
+      <tree-list-li :tree-data="item.children" v-if="item.children && item.isOpen" />
     </li>
   </ul>
 </template>
@@ -13,8 +13,8 @@ export default {
   components: {},
   props: {
     treeData: {
-      type: Array,
-    },
+      type: Array
+    }
   },
   setup(props) {
     const cloneTreeData = ref([])
