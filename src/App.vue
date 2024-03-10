@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import defaultData from './assets/data.js'
 import TreeList from './components/TreeList.vue'
 export default {
@@ -8,12 +8,14 @@ export default {
   },
   setup() {
     onMounted(() => {
-      const circles = circlesRef.value
-      circles.forEach((circle) => {
-        if (!originalCircleLeftPlace) {
-          originalCircleLeftPlace = circle.offsetLeft
-        }
-      })
+      if (circlesRef.value) {
+        const circles = circlesRef.value
+        circles.forEach((circle) => {
+          if (!originalCircleLeftPlace) {
+            originalCircleLeftPlace = circle.offsetLeft
+          }
+        })
+      }
     })
     const rightDrawer = ref(null)
     const drawerStatus = ref(false)
@@ -24,8 +26,7 @@ export default {
       }
     }
     // 動畫類組
-    // 參數
-    let animateType = ref('css-to-center') // 一開始預設動畫type
+    let animateType = ref('css') // 一開始預設動畫type
     let originalCircleLeftPlace = null // 原始動畫left位子
     let timerIntervalToRIght = null // 往右邊的時間間隔
     let timerIntervalToOrigin = null // 回中間的時間間隔
@@ -37,12 +38,17 @@ export default {
         clearInterval(timerIntervalToRIght)
         clearInterval(timerIntervalToOrigin)
         if (clickType === 'js') {
-          circleAnimationToRightUseJs()
+          circleAnimationToRightUseJs() // js操作動畫
+        } else if (clickType === 'canvas') {
+          nextTick(() => {
+            initHundredCircle() // canvas 操作動畫
+          })
         }
       } catch (error) {
         console.error(error)
       }
     }
+    // 讓圓圈回到原本地方，因為有可能動畫切到一半，要復原回原點
     const moveCirclesToOrigin = function () {
       const circles = circlesRef.value
       circles.forEach((circle) => {
@@ -50,6 +56,7 @@ export default {
         circle.style.left = `${originalCircleLeftPlace}px`
       })
     }
+    // 讓圓圈往右跑
     const moveCirclesToRight = function () {
       const circles = circlesRef.value
       circles.forEach((circle) => {
@@ -58,6 +65,7 @@ export default {
         circle.style.left = `${leftValue}px`
       })
     }
+    // js 動畫的時間interval
     const circleAnimationToRightUseJs = function () {
       timerIntervalToRIght = setInterval(() => {
         moveCirclesToRight()
@@ -65,6 +73,57 @@ export default {
       timerIntervalToOrigin = setInterval(() => {
         moveCirclesToOrigin()
       }, 2000)
+    }
+    // 100顆球的動畫（使用canvas）
+    let [startX, startY, endX, endY] = [ref(0), ref(0), ref(100), ref(300)]
+    const initHundredCircle = function () {
+      try {
+        const canvas = document.getElementById('canvasFor100Circle')
+        const ctx = canvas.getContext('2d') // 2d 渲染
+        const balls = []
+        const numBalls = 100
+        const ballRadius = 10
+
+        for (let i = 0; i < numBalls; i++) {
+          const dx = (endX.value - startX.value) / 100
+          const dy = (endY.value - startY.value) / 100
+
+          balls.push({
+            x: startX.value,
+            y: startY.value,
+            endX: endX.value,
+            endY: endY.value,
+            dx: dx,
+            dy: dy,
+            radius: ballRadius,
+            color: `radial-gradient(circle, rgba(113,81,95,1) 81%, rgba(0,0,0,1) 100%)`
+          })
+        }
+        draw(ctx, canvas, balls)
+      } catch (e) {
+        console.error(e.message)
+      }
+    }
+    const drawBall = function (ctx, ball) {
+      ctx.beginPath()
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2) // 繪出圓形的方法
+      ctx.fillStyle = ball.color
+      ctx.fill() // 填充當前路徑
+      ctx.closePath()
+    }
+
+    const draw = function (ctx, canvas, balls) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height) // 繪圖之前，先清除
+      balls.forEach((ball) => {
+        drawBall(ctx, ball)
+        ball.x += ball.dx
+        ball.y += ball.dy
+        if (Math.abs(ball.x - ball.endX) < 1 && Math.abs(ball.y - ball.endY) < 1) {
+          ball.x = ball.startX
+          ball.y = ball.startY
+        }
+      })
+      requestAnimationFrame(() => draw(ctx, canvas, balls))
     }
     return {
       circleShowIndex: [1, 3, 7, 9], // 哪些方格要顯示圓圈
@@ -76,6 +135,10 @@ export default {
       animateType,
       circlesRef,
       changeAnimateType,
+      startX,
+      startY,
+      endX,
+      endY
     }
   }
 }
@@ -84,10 +147,19 @@ export default {
 <template>
   <div @click="handleClickOutside">
     <div :class="$style.rightDrawerBtn">
-      <div>
-        <button @click="changeAnimateType('css')">CSS Animate</button>
-        <button @click="changeAnimateType('js')">JS Animate</button>
-        <button @click="changeAnimateType('css-to-center')">CSS to Center</button>
+      <div :class="$style.animateTypeClass">
+        <div>
+          <button @click="changeAnimateType('css')">CSS Animate</button>
+          <button @click="changeAnimateType('js')">JS Animate</button>
+          <button @click="changeAnimateType('css-to-center')">CSS to Center</button>
+        </div>
+        <div>
+          <button @click="changeAnimateType('canvas')">100 circles Canvas</button>
+          <div><input v-model.number="startX" /><span>x軸起始點</span></div>
+          <div><input v-model.number="startY" /><span>y軸起始點</span></div>
+          <div><input v-model.number="endX" /><span>x軸終點</span></div>
+          <div><input v-model.number="endY" /><span>y軸終點</span></div>
+        </div>
       </div>
       <button @click.self.stop="drawerStatus = !drawerStatus">Show Drawer</button>
     </div>
@@ -102,7 +174,7 @@ export default {
         <div v-for="index in 9" :key="index" :class="$style.nineSquare__repeatDiv">
           <!-- 圓圈 -->
           <div
-            v-if="circleShowIndex.includes(index)"
+            v-if="circleShowIndex.includes(index) && animateType !== 'canvas'"
             ref="circlesRef"
             :class="[
               $style.nineSquare__circle,
@@ -125,6 +197,9 @@ export default {
               }
             ]"
           ></div>
+          <div v-if="animateType === 'canvas'" :class="$style.canvasPosition">
+            <canvas id="canvasFor100Circle" width="500" height="500"></canvas>
+          </div>
           <!-- 方塊 -->
           <div
             :class="[
@@ -146,20 +221,23 @@ $drawer-btn-height: 50px;
   height: $drawer-btn-height;
   background-color: white;
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
   align-items: center;
-  button {
+  button,
+  input {
     margin: 10px;
   }
 }
+// 抽屜打開來的樣子
 .mainDrawer {
+  color: white;
   width: 50vw;
   height: 100vh;
   position: fixed;
   top: 0;
   right: -50vw;
   z-index: 9999;
-  background-color: red;
+  background-color: black;
   transition: right 1s ease; /* 添加过渡效果 */
   padding: 10px;
   box-sizing: border-box;
@@ -220,7 +298,29 @@ $drawer-btn-height: 50px;
     animation: squareFadeInOut 2s infinite;
   }
 }
-
+// canvas 相關設定
+.canvasPosition {
+  border: 1px solid white;
+  z-index: 1;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  > canvas {
+    width: 500px;
+    height: 500px;
+  }
+}
+// 切換動畫的形式
+.animateTypeClass {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  top: $drawer-btn-height;
+  left: 0;
+  z-index: 1;
+}
+// 方塊的動畫
 @keyframes squareFadeInOut {
   0% {
     opacity: 1;
@@ -232,6 +332,7 @@ $drawer-btn-height: 50px;
     opacity: 1;
   }
 }
+// 往中間的動畫
 @for $i from 1 through 9 {
   $top: 0;
   $left: 0;
@@ -274,5 +375,4 @@ $drawer-btn-height: 50px;
     left: 200%;
   }
 }
-
 </style>
