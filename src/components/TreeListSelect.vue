@@ -1,8 +1,8 @@
 <template>
   <div class="tree-select">
     <select v-model="selectedItem" @change="selectItemFunc2">
-      <option value="">请选择</option>
-      <template v-for="(item) in data" :key="item.key">
+      <option value="">請選擇</option>
+      <template v-for="item in data" :key="item.key">
         <option :value="item">{{ item.text }}</option>
         <template v-if="validateSelectItemShow(item.key)">
           <template v-for="(item, index) in selectArr" :key="`s-${index}`">
@@ -38,12 +38,17 @@ export default {
     const selectArrMapText = ref([])
     const selectItemFunc2 = function () {
       const { no } = selectedItem.value
-      if (!selectedItem.value.children) {
-        return
-      }
-      if(!no.includes('-')){
+      // 代表根源，所以要清空
+      if (!no.includes('-')) {
         selectArr.value = []
       }
+      // 清空後為0，代表是新的根
+      // if
+      // 1. 放入選到的value
+      // 2. 放入其children
+      // else
+      // 找是否有更深的值，有更深的就砍掉
+      // 找到要插入的index，如果有children代表可以往下加入，如果沒有則這就是底了
       if (selectArr.value.length === 0) {
         selectArr.value.push(selectedItem.value)
         selectedItem.value.children.forEach((item, index) => {
@@ -56,11 +61,13 @@ export default {
           selectArr.value = selectArr.value.filter((item) => item.no.length <= no.length)
         }
         let addIndex = selectArr.value.findIndex((item) => item.no === no)
-        selectedItem.value.children.forEach((item, index) => {
-          item.no = `${no}-${index + 1}`
-          selectArr.value.splice(addIndex + 1, 0, item)
-          addIndex++
-        })
+        if (selectedItem.value.children) {
+          selectedItem.value.children.forEach((item, index) => {
+            item.no = `${no}-${index + 1}`
+            selectArr.value.splice(addIndex + 1, 0, item)
+            addIndex++
+          })
+        }
       }
       selectArrMapText.value = selectArr.value.map((item) => item.key)
     }

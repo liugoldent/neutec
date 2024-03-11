@@ -26,6 +26,10 @@ export default {
     recurIndex: {
       type: String,
       default: `0`
+    },
+    root: {
+      type: Boolean,
+      default: false,
     }
   },
   setup(props, { emit }) {
@@ -55,7 +59,6 @@ export default {
       }
       // 切換 isOpen 屬性
       item.isOpen = !item.isOpen
-      console.log(cloneTreeData.value)
       updateTreeNewValue()
     }
     // 因為toggle是針對children做切換與hightLight，所以也要emit上去讓父資料不要有hightLight
@@ -85,37 +88,24 @@ export default {
       if (index > -1) {
         data.value.splice(index, 1)
       }
-      console.log('---------',data.value)
-      // 如果找到比自己還長的，就砍掉
-      // for (let i = data.value.length - 1; i >= 0; i--) {
-      //   if (data.value[i].no.length >= newObj.no.length) {
-      //     data.value.splice(i, 1)
-      //   }
-      // }
+      // 把root的加到前面（讓第0個是根源）
+      data.value.unshift(newObj)
+      // 如果是root && 長度>1，要去找是否有其他不屬於這層的進來
+      if(props.root && data.value.length > 1){
+        const { no } = data.value[0]
+        data.value = data.value.filter(item => item.no.includes(no))
+      }
     }
-    // 更新走過開啟的節點
-    // 先刪除，之後加上
+    // if 有新物件，則加入
+    // 沒有新物件，則視為關閉
     const updateTreeNewValue = function () {
       const newObj = cloneTreeData.value.find((item) => item.isOpen)
-      console.log(newObj)
       if (newObj) {
         findThisTimeCloseIndex(newObj)
-        data.value.unshift(newObj)
-        console.log(newObj)
-        console.log(data.value)
-        if(data.value.length > 1){
-          data.value = data.value.filter(item => {
-            console.log(item.no.length > newObj.no.length)
-            return item.no.length >= newObj.no.length
-          })
-        }
-
-        emit('updateTreeNewValue', data.value)
       }else{
-        console.log(clickItem.value)
         data.value = data.value.filter(item => item.key !== clickItem.value.key && item.no.length < clickItem.value.no.length)
       }
-      console.log(data.value)
+      emit('updateTreeNewValue', data.value)
     }
 
     return {

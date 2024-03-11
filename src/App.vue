@@ -132,11 +132,6 @@ export default {
     provide('saveArr', data)
     const updateTreeNewValue = function(nvl){
       console.log(nvl)
-      // if(saveArr.length === 0){
-      //   saveArr.push(nvl.filter(item => item.isOpen))
-      // }else{
-
-      // }
     }
     return {
       circleShowIndex: [1, 3, 7, 9], // 哪些方格要顯示圓圈
@@ -181,7 +176,7 @@ export default {
       ref="rightDrawer"
       :class="[$style.mainDrawer, { [$style.mainDrawer__open]: drawerStatus }]"
     >
-      <TreeListLi :tree-data="treeData" @updateTreeNewValue="updateTreeNewValue"/>
+      <TreeListLi :tree-data="treeData" :root="true" @updateTreeNewValue="updateTreeNewValue"/>
       <TreeListSelect :tree-data="treeData" />
     </div>
     <div :class="$style.nineSquare">
