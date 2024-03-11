@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, provide } from 'vue'
 import defaultData from './assets/data.js'
 import TreeListLi from './components/TreeListLi.vue'
 import TreeListSelect from './components/TreeListSelect.vue'
@@ -127,6 +127,17 @@ export default {
       })
       requestAnimationFrame(() => draw(ctx, canvas, balls))
     }
+    // 儲存open的陣列
+    const data = ref([])
+    provide('saveArr', data)
+    const updateTreeNewValue = function(nvl){
+      console.log(nvl)
+      // if(saveArr.length === 0){
+      //   saveArr.push(nvl.filter(item => item.isOpen))
+      // }else{
+
+      // }
+    }
     return {
       circleShowIndex: [1, 3, 7, 9], // 哪些方格要顯示圓圈
       fadeInOutShowIndex: [3, 5, 9], // 哪些方格要淡入淡出
@@ -140,7 +151,8 @@ export default {
       startX,
       startY,
       endX,
-      endY
+      endY,
+      updateTreeNewValue
     }
   }
 }
@@ -169,7 +181,7 @@ export default {
       ref="rightDrawer"
       :class="[$style.mainDrawer, { [$style.mainDrawer__open]: drawerStatus }]"
     >
-      <TreeListLi :tree-data="treeData" />
+      <TreeListLi :tree-data="treeData" @updateTreeNewValue="updateTreeNewValue"/>
       <TreeListSelect :tree-data="treeData" />
     </div>
     <div :class="$style.nineSquare">
