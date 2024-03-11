@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { ref, watch, watchEffect, onMounted, inject } from 'vue'
+import { ref, onMounted, inject } from 'vue'
 export default {
   components: {},
   props: {
@@ -29,7 +29,7 @@ export default {
     },
     root: {
       type: Boolean,
-      default: false,
+      default: false
     }
   },
   setup(props, { emit }) {
@@ -88,12 +88,13 @@ export default {
       if (index > -1) {
         data.value.splice(index, 1)
       }
-      // 把root的加到前面（讓第0個是根源）
+      // 把root的加到前面（讓第0個是根源）(因為是遞迴，所以越子層越後面)
       data.value.unshift(newObj)
+      console.log(data.value)
       // 如果是root && 長度>1，要去找是否有其他不屬於這層的進來
-      if(props.root && data.value.length > 1){
+      if (props.root && data.value.length > 1) {
         const { no } = data.value[0]
-        data.value = data.value.filter(item => item.no.includes(no))
+        data.value = data.value.filter((item) => item.no.includes(no))
       }
     }
     // if 有新物件，則加入
@@ -102,8 +103,10 @@ export default {
       const newObj = cloneTreeData.value.find((item) => item.isOpen)
       if (newObj) {
         findThisTimeCloseIndex(newObj)
-      }else{
-        data.value = data.value.filter(item => item.key !== clickItem.value.key && item.no.length < clickItem.value.no.length)
+      } else {
+        data.value = data.value.filter(
+          (item) => item.key !== clickItem.value.key && item.no.length < clickItem.value.no.length
+        )
       }
       emit('updateTreeNewValue', data.value)
     }

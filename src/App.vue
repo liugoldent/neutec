@@ -1,5 +1,5 @@
 <script>
-import { ref, onMounted, nextTick, provide } from 'vue'
+import { ref, onMounted, onBeforeMount, nextTick, provide } from 'vue'
 import defaultData from './assets/data.js'
 import TreeListLi from './components/TreeListLi.vue'
 import TreeListSelect from './components/TreeListSelect.vue'
@@ -9,6 +9,9 @@ export default {
     TreeListSelect
   },
   setup() {
+    onBeforeMount(() => {
+      initDefaultData()
+    })
     onMounted(() => {
       if (circlesRef.value) {
         const circles = circlesRef.value
@@ -130,8 +133,54 @@ export default {
     // 儲存open的陣列
     const data = ref([])
     provide('saveArr', data)
-    const updateTreeNewValue = function(nvl){
-      console.log(nvl)
+    const updateTreeNewValue = function (nvl) {
+      for (let i = 0; i < nvl.length; i++) {
+        const currentItem = nvl[i]
+        const currentItemNo = currentItem.no
+        for (let j = i + 1; j < nvl.length; j++) {
+          const nextItem = nvl[j]
+          if (nextItem.no.indexOf(currentItemNo) === -1) {
+            // 如果下一個元素的編號中不包含當前元素的編號，則刪除該元素
+            nvl.splice(j, 1)
+            j-- // 因為刪除了元素，所以要調整索引以避免跳過下一個元素
+          }
+        }
+      }
+      const result = nvl.map((item) => ({
+        text: item.text,
+        key: item.key,
+        no: item.no
+      }))
+      if (result.length > 0) {
+        console.log(result)
+        localStorage.setItem('userClickDrink', JSON.stringify(result))
+      }
+    }
+    const initDefaultData = function () {
+      const clickDrink = JSON.parse(localStorage.getItem('userClickDrink'))
+      if (clickDrink) {
+        toOriginal(clickDrink)
+        data.value = clickDrink
+      }
+    }
+    const toOriginal = function (clickDrink) {
+      const updateIsOpen = (data, saveItem, isLast) => {
+        if (data.key === saveItem.key) {
+          data.isOpen = true
+          if (isLast) {
+            data.highlight = true // 只有在最後一個元素時才設置 highlight 為 true
+          }
+        }
+        if (data.children) {
+          data.children.forEach((child) => updateIsOpen(child, saveItem, isLast))
+        }
+      }
+
+      clickDrink.forEach((saveItem, index) => {
+        const isLast = index === clickDrink.length - 1
+        defaultData.forEach((data) => updateIsOpen(data, saveItem, isLast))
+      })
+      console.log(defaultData)
     }
     return {
       circleShowIndex: [1, 3, 7, 9], // 哪些方格要顯示圓圈
@@ -176,7 +225,7 @@ export default {
       ref="rightDrawer"
       :class="[$style.mainDrawer, { [$style.mainDrawer__open]: drawerStatus }]"
     >
-      <TreeListLi :tree-data="treeData" :root="true" @updateTreeNewValue="updateTreeNewValue"/>
+      <TreeListLi :tree-data="treeData" :root="true" @updateTreeNewValue="updateTreeNewValue" />
       <TreeListSelect :tree-data="treeData" />
     </div>
     <div :class="$style.nineSquare">
