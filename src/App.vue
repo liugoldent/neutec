@@ -10,7 +10,7 @@ export default {
   },
   setup() {
     onBeforeMount(() => {
-      initDefaultData()
+      // initDefaultData()
     })
     onMounted(() => {
       if (circlesRef.value) {
@@ -152,15 +152,14 @@ export default {
         no: item.no
       }))
       if (result.length > 0) {
-        console.log(result)
-        localStorage.setItem('userClickDrink', JSON.stringify(result))
+        // localStorage.setItem('userClickDrink', JSON.stringify(result))
       }
     }
     const initDefaultData = function () {
       const clickDrink = JSON.parse(localStorage.getItem('userClickDrink'))
       if (clickDrink) {
         toOriginal(clickDrink)
-        data.value = clickDrink
+        // data.value = clickDrink
       }
     }
     const toOriginal = function (clickDrink) {
