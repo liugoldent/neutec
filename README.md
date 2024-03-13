@@ -10,4 +10,4 @@ npm run dev
 ```
 
 ## github-pages
-[連結]()
+[連結](https://liugoldent.github.io/neutec/)
