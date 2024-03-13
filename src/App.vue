@@ -136,7 +136,6 @@ export default {
     const data = ref([])
     provide('saveArr', data)
     const updateTreeNewValue = function (nvl) {
-      console.log(nvl)
       for (let i = 0; i < nvl.length; i++) {
         const currentItem = nvl[i]
         const currentItemNo = currentItem.no
@@ -154,15 +153,12 @@ export default {
         key: item.key,
         no: item.no
       }))
-      if (result.length > 0) {
-        localStorage.setItem('userClickDrink', JSON.stringify(result))
-      }
+      localStorage.setItem('userClickDrink', JSON.stringify(result))
     }
     const initDefaultData = function () {
       const clickDrink = JSON.parse(localStorage.getItem('userClickDrink'))
       if (clickDrink) {
         toOriginal(clickDrink)
-        // data.value = clickDrink
       }
     }
     const toOriginal = function (clickDrink) {
@@ -174,6 +170,7 @@ export default {
             // 如果是最後一層則高亮
             data.highlight = true
           }
+          data.no = saveItem.no
         }
         // 如果有子層，那再繼續往下遍歷
         if (data.children) {
@@ -230,7 +227,7 @@ export default {
     >
       <TreeListLi :tree-data="treeData" :root="true" @updateTreeNewValue="updateTreeNewValue" />
       <TreeListSelect :tree-data="treeData" />
-      <TreeSelfOption :tree-data="treeData"/>
+      <TreeSelfOption :tree-data="treeData" />
     </div>
     <div :class="$style.nineSquare">
       <div :class="$style.nineSquare__mainDiv">
@@ -301,7 +298,7 @@ $drawer-btn-height: 50px;
   right: -50vw;
   z-index: 9999;
   background-color: black;
-  transition: right 1s ease; /* 添加过渡效果 */
+  transition: right 1s ease;
   padding: 10px;
   box-sizing: border-box;
   &__open {
@@ -315,7 +312,7 @@ $drawer-btn-height: 50px;
   background-color: gray;
   display: flex;
   align-items: center;
-  overflow: hidden; /* 添加溢出隐藏样式 */
+  overflow: hidden;
   &__mainDiv {
     flex-grow: 1;
     display: grid;

@@ -34,7 +34,7 @@ export default {
     root: {
       type: Boolean,
       default: false
-    }
+    },
   },
   setup(props, { emit }) {
     const cloneTreeData = ref([])
@@ -101,10 +101,9 @@ export default {
       }
     }
     // if 有新物件，則加入
-    // 沒有新物件，則視為關閉
+    // else 沒有新物件，則視為關閉
     const updateTreeNewValue = function () {
       const newObj = cloneTreeData.value.find((item) => item.isOpen)
-      console.log('newObj: ', newObj);
       if (newObj) {
         findThisTimeCloseIndex(newObj)
       } else {

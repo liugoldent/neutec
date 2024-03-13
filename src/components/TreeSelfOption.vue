@@ -8,24 +8,20 @@
         {{ item.text }}
       </option>
     </select>
-    <template v-for="(selectedItem, index) in childCanSelectedItems">
-      {{ index }}
-      <template v-if="true">
-        <select
-          v-model="childHasSelectedModel[index]"
-          @change="handleItemChangeForChild(index, selectedItem.children)"
-          :key="index"
+    <template v-for="(selectedItem, index) in childCanSelectedItems" :key="index">
+      <select
+        v-model="childHasSelectedModel[index]"
+        @change="handleItemChangeForChild(index, selectedItem.children)"
+      >
+        <option value="">請選擇</option>
+        <option
+          v-for="childItem in selectedItem.children"
+          :value="childItem.key"
+          :key="childItem.key"
         >
-          <option value="">請選擇</option>
-          <option
-            v-for="childItem in selectedItem.children"
-            :value="childItem.key"
-            :key="childItem.key"
-          >
-            {{ childItem.text }}
-          </option>
-        </select>
-      </template>
+          {{ childItem.text }}
+        </option>
+      </select>
     </template>
   </div>
 </template>
@@ -45,9 +41,11 @@ export default {
     const handleItemChange = function (index) {
       if (index === 0) {
         const item = props.treeData.find((item) => item.key === rootHasSelectedModel.value[0])
-        rootHasSelectedModel.value = [item.key, null]
         childCanSelectedItems.value = []
-        childCanSelectedItems.value.push(item)
+        if (item) {
+          rootHasSelectedModel.value = [item.key, null]
+          childCanSelectedItems.value.push(item)
+        }
       }
     }
     const handleItemChangeForChild = function (index, selectedItems) {
@@ -56,6 +54,10 @@ export default {
         const item = childCanSelectedItems.value[index].children.find((item) => {
           return item.key === childHasSelectedModel.value[index]
         })
+        // 選到請選擇，則返回
+        if (!item) {
+          return
+        }
         // 這邊可以去打API，如果有children再Loading
         if (item.children) {
           childCanSelectedItems.value.push(item)
