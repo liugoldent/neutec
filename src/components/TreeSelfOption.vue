@@ -80,7 +80,7 @@ export default {
   }
 }
 </script>
-<style lang='scss' module>
+<style lang="scss" module>
 $distanceOfGapMargin: 20px;
 $itemDistance: 10px;
 .treeDisplay {
@@ -110,6 +110,3 @@ $itemDistance: 10px;
   }
 }
 </style>
-
-
-

@@ -39,7 +39,7 @@ export default {
     const selectArrMapText = ref([])
     const selectItemFunc = function () {
       const { no } = selectedItem.value
-      if(!no){
+      if (!no) {
         return
       }
       // 代表根源，所以要清空
@@ -102,8 +102,7 @@ export default {
   align-items: flex-start;
   > h1 {
     font-size: 30px;
-    margin-bottom: 10px;;
+    margin-bottom: 10px;
   }
 }
-
 </style>
