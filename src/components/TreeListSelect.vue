@@ -40,6 +40,7 @@ export default {
     const selectItemFunc = function () {
       const { no } = selectedItem.value
       if (!no) {
+        selectArr.value.splice(1)
         return
       }
       // 代表根源，所以要清空
