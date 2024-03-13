@@ -1,18 +1,22 @@
 <template>
-  <ul>
-    <li v-for="(item, index) in data" :key="item.key">
-      <span @click="toggleTree(item)" :class="{ [$style.highLight]: item.highlight }"
-        >{{ item.text }}{{ item.isOpen }}</span
-      >
-      <tree-list-li
-        :recur-index="item.no"
-        :tree-data="item.children"
-        v-if="item.children && item.isOpen"
-        @cancelFatherHightLight="cancelFatherHightLight(item)"
-        @updateTreeNewValue="updateTreeNewValue"
-      />
-    </li>
-  </ul>
+  <div :class="$style.list">
+    <ul :class="$style.list__ul">
+      <li v-for="item in data" :key="item.key" :class="$style.list__li">
+        <span
+          @click="toggleTree(item)"
+          :class="[$style.list__span, { [$style.highLight]: item.highlight }]"
+          >{{ item.text }}</span
+        >
+        <tree-list-li
+          :recur-index="item.no"
+          :tree-data="item.children"
+          v-if="item.children && item.isOpen"
+          @cancelFatherHightLight="cancelFatherHightLight(item)"
+          @updateTreeNewValue="updateTreeNewValue"
+        />
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
@@ -90,7 +94,6 @@ export default {
       }
       // 把root的加到前面（讓第0個是根源）(因為是遞迴，所以越子層越後面)
       data.value.unshift(newObj)
-      console.log(data.value)
       // 如果是root && 長度>1，要去找是否有其他不屬於這層的進來
       if (props.root && data.value.length > 1) {
         const { no } = data.value[0]
@@ -101,6 +104,7 @@ export default {
     // 沒有新物件，則視為關閉
     const updateTreeNewValue = function () {
       const newObj = cloneTreeData.value.find((item) => item.isOpen)
+      console.log('newObj: ', newObj);
       if (newObj) {
         findThisTimeCloseIndex(newObj)
       } else {
@@ -122,17 +126,26 @@ export default {
 </script>
 
 <style lang="scss" module>
-ul {
-  list-style-type: none;
-  padding-left: 20px;
-}
-li {
-  margin-bottom: 10px;
-  color: white;
-}
-span {
-  display: inline-block;
-  margin-bottom: 10px;
+.list {
+  margin: 10px 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  > h1 {
+    font-size: 30px;
+    margin-bottom: 10px;
+  }
+  &__ul {
+    list-style-type: none;
+  }
+  &__span {
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+  &__li {
+    margin-bottom: 10px;
+    color: white;
+  }
 }
 // 點選到的項目，要highLight
 .highLight {

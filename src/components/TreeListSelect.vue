@@ -1,6 +1,7 @@
 <template>
-  <div class="tree-select">
-    <select v-model="selectedItem" @change="selectItemFunc2">
+  <div :class="$style.treeSelect">
+    <h1>下拉選單（一層）</h1>
+    <select v-model="selectedItem" @change="selectItemFunc">
       <option value="">請選擇</option>
       <template v-for="item in data" :key="item.key">
         <option :value="item">{{ item.text }}</option>
@@ -36,8 +37,11 @@ export default {
 
     const selectArr = ref([])
     const selectArrMapText = ref([])
-    const selectItemFunc2 = function () {
+    const selectItemFunc = function () {
       const { no } = selectedItem.value
+      if(!no){
+        return
+      }
       // 代表根源，所以要清空
       if (!no.includes('-')) {
         selectArr.value = []
@@ -83,22 +87,23 @@ export default {
       selectedItem,
       selectArr,
       validateSelectItemShow,
-      selectItemFunc2
+      selectItemFunc
     }
   }
 }
 </script>
-
 <style lang="scss" module>
-ul {
-  list-style-type: none;
-  padding-left: 20px;
+.treeSelect {
+  border: 1px solid white;
+  padding: 10px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  > h1 {
+    font-size: 30px;
+    margin-bottom: 10px;;
+  }
 }
-li {
-  margin-bottom: 10px;
-}
-span {
-  display: inline-block;
-  margin-bottom: 10px;
-}
+
 </style>
