@@ -1,6 +1,6 @@
 <script>
 import { ref, onMounted, onBeforeMount, nextTick, provide } from 'vue'
-import defaultData from '@/assets/data.js'
+import defaultData from '@/lib/data.js'
 import TreeListLi from '@/components/TreeListLi.vue'
 import TreeListSelect from '@/components/TreeListSelect.vue'
 import TreeSelfOption from '@/components/TreeSelfOption.vue'
