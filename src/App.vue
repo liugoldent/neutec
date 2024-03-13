@@ -378,7 +378,7 @@ $drawer-btn-height: 50px;
   flex-direction: column;
   top: $drawer-btn-height;
   left: 0;
-  z-index: 1;
+  z-index: 10;
 }
 // 方塊的動畫
 @keyframes squareFadeInOut {
